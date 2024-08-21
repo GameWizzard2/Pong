@@ -31,6 +31,16 @@ function update() {
     ballPosition.y += ySpeed;
 }
 
+function checkPaddleCollision(ball, paddle ) {
+    // check if the paddle and ball overlap vertically and horizontally.
+    return (
+        ball.left   < paddle.right &&
+        ball.right  > paddle.left &&
+        ball.top    < paddle.bottom &&
+        ball.bottom > paddle.top
+    );
+}
+
 function checkCollision() {
     let ball = {
         left: ballPosition.x,
@@ -39,6 +49,31 @@ function checkCollision() {
         bottom: ballPosition.y + BALL_SIZE
     }
 
+    let leftPaddle = {
+        left: PADDLE_OFFSET,
+        right: PADDLE_OFFSET + PADDLE_WIDTH,
+        top: leftPaddleTop,
+        bottom: leftPaddleTop + PADDLE_HEIGHT
+    };
+    
+    let rightPaddle = {
+        left: width - PADDLE_WIDTH - PADDLE_OFFSET,
+        right: width - PADDLE_OFFSET,
+        top: rightPaddleTop,
+        bottom: rightPaddleTop + PADDLE_HEIGHT
+    };
+
+    if (checkPaddleCollision(ball, leftPaddle)) {
+        // Left paddle collision happened
+        xSpeed = Math.abs(xSpeed);
+    }
+
+    if (checkPaddleCollision(ball, rightPaddle)) {
+        // Right paddle collision happened
+        xSpeed = -Math.abs(xSpeed);
+    }
+    
+
     if (ball.left < 0 || ball.right > width) {
         xSpeed = -xSpeed;
     }
@@ -46,6 +81,44 @@ function checkCollision() {
     if (ball.top < 0 || ball.bottom > height) {
         ySpeed = -ySpeed;
     }
+}
+
+function gameControls() {
+    document.addEventListener("mousemove", e => {
+    rightPaddleTop = e.y - canvas.offsetTop;
+    if (rightPaddleTop < 0) {
+        rightPaddleTop = 0;
+        } 
+
+        else if (rightPaddleTop + PADDLE_HEIGHT > height) {
+        rightPaddleTop = height - PADDLE_HEIGHT;
+    }
+    });
+    document.addEventListener("keydown", e => {
+    // Check which key is pressed
+    switch(e.key) {
+        case "ArrowUp":
+            // Move the paddle up
+            rightPaddleTop -= PADDLESPEED;
+            // Make sure the paddle doesn't go off the top of the canvas
+            if (rightPaddleTop < 0) {
+                rightPaddleTop = 0;
+            }
+            break;
+        case "ArrowDown":
+            // Move the paddle down
+            rightPaddleTop += PADDLESPEED;
+            // Make sure the paddle doesn't go off the bottom of the canvas
+            if (height - PADDLE_HEIGHT > height) {
+                rightPaddleTop = 50;
+            } 
+
+            else if (rightPaddleTop + PADDLE_HEIGHT > height) {
+                rightPaddleTop = height - PADDLE_HEIGHT;
+            }
+            break;
+        }
+    });
 }
 
 function gameloop() {
@@ -85,44 +158,7 @@ const PADDLESPEED = 10
 
 
 
-function gameControls() {
-    document.addEventListener("mousemove", e => {
-    rightPaddleTop = e.y - canvas.offsetTop;
-    if (rightPaddleTop < 0) {
-        rightPaddleTop = 0;
-        } 
 
-        else if (rightPaddleTop + PADDLE_HEIGHT > height) {
-        rightPaddleTop = height - PADDLE_HEIGHT;
-    }
-    });
-    document.addEventListener("keydown", e => {
-    // Check which key is pressed
-    switch(e.key) {
-        case "ArrowUp":
-            // Move the paddle up
-            rightPaddleTop -= PADDLESPEED;
-            // Make sure the paddle doesn't go off the top of the canvas
-            if (rightPaddleTop < 0) {
-                rightPaddleTop = 0;
-            }
-            break;
-        case "ArrowDown":
-            // Move the paddle down
-            rightPaddleTop += PADDLESPEED;
-            // Make sure the paddle doesn't go off the bottom of the canvas
-            if (height - PADDLE_HEIGHT > height) {
-                rightPaddleTop = 50;
-            } 
-
-            else if (rightPaddleTop + PADDLE_HEIGHT > height) {
-                rightPaddleTop = height - PADDLE_HEIGHT;
-            }
-            break;
-    }
-});
-
-}
 
 
 
