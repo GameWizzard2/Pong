@@ -1,10 +1,28 @@
 // Draw the game
 function draw() {
+
+// Gameplay area
 ctx.fillStyle = "black";
 ctx.fillRect(0, 0, width, height);
 
+// Ball
 ctx.fillStyle = "white";
 ctx.fillRect(ballPosition.x, ballPosition.y, BALL_SIZE, BALL_SIZE)
+
+// Draw the paddles
+ctx.fillRect(
+    PADDLE_OFFSET,
+    leftPaddleTop,
+    PADDLE_WIDTH,
+    PADDLE_HEIGHT
+);
+
+ctx.fillRect(
+    width - PADDLE_WIDTH - PADDLE_OFFSET,
+    rightPaddleTop,
+    PADDLE_WIDTH,
+    PADDLE_HEIGHT
+    );
 }
 
 // Update the game
@@ -52,5 +70,57 @@ let ballPosition = {x: 20, y: 30};
 // ball settings 
 let xSpeed = 4;
 let ySpeed = 2;
+
+// Paddles
+const PADDLE_WIDTH = 5;
+const PADDLE_HEIGHT = 20;
+const PADDLE_OFFSET = 10;
+
+let leftPaddleTop = 10;
+let rightPaddleTop = 30;
+
+// Paddle controls
+const PADDLESPEED = 10
+
+document.addEventListener("mousemove", e => {
+  rightPaddleTop = e.y - canvas.offsetTop;
+  if (rightPaddleTop < 0) {
+    rightPaddleTop = 0;
+    } 
+
+    else if (rightPaddleTop + PADDLE_HEIGHT > height) {
+    rightPaddleTop = height - PADDLE_HEIGHT;
+}
+});
+
+document.addEventListener("keydown", e => {
+    // Check which key is pressed
+    switch(e.key) {
+        case "ArrowUp":
+            // Move the paddle up
+            rightPaddleTop -= PADDLESPEED;
+            // Make sure the paddle doesn't go off the top of the canvas
+            if (rightPaddleTop < 0) {
+                rightPaddleTop = 0;
+            }
+            break;
+        case "ArrowDown":
+            // Move the paddle down
+            rightPaddleTop += PADDLESPEED;
+            // Make sure the paddle doesn't go off the bottom of the canvas
+            if (height - PADDLE_HEIGHT > height) {
+                rightPaddleTop = 50;
+            } 
+
+            else if (rightPaddleTop + PADDLE_HEIGHT > height) {
+                rightPaddleTop = height - PADDLE_HEIGHT;
+            }
+            break;
+    }
+
+
+
+
+});
 
 gameloop();
