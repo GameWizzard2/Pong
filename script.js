@@ -51,7 +51,8 @@ function checkCollision() {
 function gameloop() {
     draw();
     update();
-    checkCollision();
+    checkCollision()
+    ;
 
     // Call this function after a timeout
     setTimeout(gameloop, 30)
@@ -82,18 +83,20 @@ let rightPaddleTop = 30;
 // Paddle controls
 const PADDLESPEED = 10
 
-document.addEventListener("mousemove", e => {
-  rightPaddleTop = e.y - canvas.offsetTop;
-  if (rightPaddleTop < 0) {
-    rightPaddleTop = 0;
-    } 
 
-    else if (rightPaddleTop + PADDLE_HEIGHT > height) {
-    rightPaddleTop = height - PADDLE_HEIGHT;
-}
-});
 
-document.addEventListener("keydown", e => {
+function gameControls() {
+    document.addEventListener("mousemove", e => {
+    rightPaddleTop = e.y - canvas.offsetTop;
+    if (rightPaddleTop < 0) {
+        rightPaddleTop = 0;
+        } 
+
+        else if (rightPaddleTop + PADDLE_HEIGHT > height) {
+        rightPaddleTop = height - PADDLE_HEIGHT;
+    }
+    });
+    document.addEventListener("keydown", e => {
     // Check which key is pressed
     switch(e.key) {
         case "ArrowUp":
@@ -117,10 +120,14 @@ document.addEventListener("keydown", e => {
             }
             break;
     }
-
-
-
-
 });
 
+}
+
+
+
+
+
+
+gameControls();
 gameloop();
