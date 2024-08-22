@@ -41,6 +41,20 @@ function checkPaddleCollision(ball, paddle ) {
     );
 }
 
+// check what angle of the paddle the ball hit, then increase or decrese ySpeed based on that.
+function adjustAngle(distanceFromTop, distanceFromBottom) {
+    console.log(`top: ${distanceFromTop}, bottom: ${distanceFromBottom}`);
+    if (distanceFromTop < 5) {
+        // If ball hit near the of the paddle, reduce ySpeed.
+        ySpeed -= 0.5;
+        console.log(`ySpeed: ${ySpeed}`);
+    } else if (distanceFromBottom < 0) {
+        // If ball hit near bottom of paddle, increase ySpeed
+        ySpeed += 0.5;
+        console.log(`ySpeed: ${ySpeed}`);
+    }
+}
+
 function checkCollision() {
     let ball = {
         left: ballPosition.x,
@@ -65,15 +79,20 @@ function checkCollision() {
 
     if (checkPaddleCollision(ball, leftPaddle)) {
         // Left paddle collision happened
+        let distanceFromTop = ball.top - leftPaddle.top;
+        let distanceFromBottom = leftPaddle.bottom - ball.bottom;
+        adjustAngle(distanceFromTop, distanceFromBottom);
         xSpeed = Math.abs(xSpeed);
     }
 
     if (checkPaddleCollision(ball, rightPaddle)) {
         // Right paddle collision happened
+        let distanceFromTop = ball.top - rightPaddle.top;
+        let distanceFromBottom = rightPaddle.bottom - ball.bottom;
+        adjustAngle(distanceFromTop, distanceFromBottom);
         xSpeed = -Math.abs(xSpeed);
     }
     
-
     if (ball.left < 0 || ball.right > width) {
         xSpeed = -xSpeed;
     }
@@ -121,13 +140,14 @@ function gameControls() {
     });
 }
 
+// runs the game.
 function gameloop() {
     draw();
     update();
     checkCollision()
     ;
 
-    // Call this function after a timeout
+    // Call this function after a timeout, can set the game speed.
     setTimeout(gameloop, 30)
 }
 
