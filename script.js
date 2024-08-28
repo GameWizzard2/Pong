@@ -111,9 +111,14 @@ function checkCollision() {
         rightScore++;
         initBall();
     }
+
     if (ball.right > width) {
         leftScore++;
         initBall();
+    }
+
+    if (leftScore > 9 || rightScore > 9) {
+        gameOver = true;
     }
 
     if (ball.top < 0 || ball.bottom > height) {
@@ -186,14 +191,26 @@ function initBall() {
     ySpeed = 2;
 }
 
+function drawGameOver() {
+    ctx.fillStyle = "white";
+    ctx.font = "30px monospace";
+    ctx.textAlign = "center";
+    ctx.fillText("GAME OVER", width / 2, height / 2);
+  }
+
 // runs the game.
 function gameloop() {
     draw();
     update();
     checkCollision();
 
+    if (gameOver) {
+        draw();
+        drawGameOver();
+    } else {
     // Call this function after a timeout, can set the game speed.
     setTimeout(gameloop, 30)
+    }
 }
 
 // Creating the window
@@ -221,6 +238,7 @@ let rightPaddleTop = 30;
 // Score Variables
 let leftScore = 0;
 let rightScore = 0;
+let gameOver = false;
 
 // Paddle controls
 const PADDLESPEED = 10
