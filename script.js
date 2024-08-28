@@ -1,12 +1,36 @@
+class GameView {
+    constructor() {
+        let canvas = document.querySelector("#canvas");
+        this.ctx = canvas.getContext("2d");
+        this.width = canvas.width;
+        this.height = canvas.height;
+        this.offsetTop = canvas.offsetTop;
+    }
+
+    draw(...entities) {
+        // Canvas is filled black.
+        this.ctx.fillStyle = "black";
+        this.ctx.fillRect(0, 0, width, height);
+
+        entities.forEach(entity => entity.draw(this.ctx));
+    }
+
+    drawScores(scores) {
+        this.ctx.fillStyle = "white";
+        this.ctx.font = "30px monospace";
+        this.ctx.textAlign = "left"
+        this.ctx.fillText(leftScore.toString(), 50, 50);
+        this.ctx.textAlign = "right"
+        this.ctx.fillText(rightScore.toString(), width - 50, 50);
+    }
+}
+
 // Draw the game
 function draw() {
 
-    // Gameplay area
-    ctx.fillStyle = "black";
-    ctx.fillRect(0, 0, width, height);
 
     //Draw Ball
-    ctx.fillStyle = "white";
+    
     ctx.fillRect(ballPosition.x, ballPosition.y, BALL_SIZE, BALL_SIZE)
 
     // Draw the paddles
@@ -24,12 +48,6 @@ function draw() {
         PADDLE_HEIGHT
     );
 
-    // Draw scores
-    ctx.font = "30px monospace";
-    ctx.textAlign = "left"
-    ctx.fillText(leftScore.toString(), 50, 50);
-    ctx.textAlign = "right"
-    ctx.fillText(rightScore.toString(), width - 50, 50);
     
     
     
@@ -214,10 +232,7 @@ function gameloop() {
 }
 
 // Creating the window
-let canvas = document.querySelector("#canvas");
-let ctx = canvas.getContext("2d");
-let width = canvas.width;
-let height = canvas.height;
+
 
 const MAX_COMPUTER_SPEED = 2;
 
