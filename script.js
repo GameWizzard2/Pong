@@ -42,6 +42,7 @@ function draw() {
 function update() {
     ballPosition.x += xSpeed;
     ballPosition.y += ySpeed;
+    followBall ();
 }
 
 function checkPaddleCollision(ball, paddle ) {
@@ -158,6 +159,26 @@ function gameControls() {
     });
 }
 
+// Computer controls left paddle.
+function followBall() {
+    let ball = {
+        top: ballPosition.y,
+        bottom: ballPosition.y + BALL_SIZE
+    };
+
+    let leftPaddle = {
+        top: leftPaddleTop,
+        bottom: leftPaddleTop + PADDLE_HEIGHT
+    };
+
+    if (ball.top < leftPaddle.top) {
+        leftPaddleTop -= MAX_COMPUTER_SPEED;
+    } else if (ball.bottom > leftPaddle.bottom) {
+        leftPaddleTop += MAX_COMPUTER_SPEED;
+    
+    }
+}
+
 // Ball postion at the start of each game.
 function initBall() {
     ballPosition = {x: 20, y: 30}; 
@@ -180,6 +201,8 @@ let canvas = document.querySelector("#canvas");
 let ctx = canvas.getContext("2d");
 let width = canvas.width;
 let height = canvas.height;
+
+const MAX_COMPUTER_SPEED = 2;
 
 // Creating the ball
 const BALL_SIZE = 5;
