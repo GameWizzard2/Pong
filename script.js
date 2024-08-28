@@ -1,29 +1,42 @@
 // Draw the game
 function draw() {
 
-// Gameplay area
-ctx.fillStyle = "black";
-ctx.fillRect(0, 0, width, height);
+    // Gameplay area
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, width, height);
 
-// Ball
-ctx.fillStyle = "white";
-ctx.fillRect(ballPosition.x, ballPosition.y, BALL_SIZE, BALL_SIZE)
+    //Draw Ball
+    ctx.fillStyle = "white";
+    ctx.fillRect(ballPosition.x, ballPosition.y, BALL_SIZE, BALL_SIZE)
 
-// Draw the paddles
-ctx.fillRect(
-    PADDLE_OFFSET,
-    leftPaddleTop,
-    PADDLE_WIDTH,
-    PADDLE_HEIGHT
-);
-
-ctx.fillRect(
-    width - PADDLE_WIDTH - PADDLE_OFFSET,
-    rightPaddleTop,
-    PADDLE_WIDTH,
-    PADDLE_HEIGHT
+    // Draw the paddles
+    ctx.fillRect(
+        PADDLE_OFFSET,
+        leftPaddleTop,
+        PADDLE_WIDTH,
+        PADDLE_HEIGHT
     );
+
+    ctx.fillRect(
+        width - PADDLE_WIDTH - PADDLE_OFFSET,
+        rightPaddleTop,
+        PADDLE_WIDTH,
+        PADDLE_HEIGHT
+    );
+
+    // Draw scores
+    ctx.font = "30px monospace";
+    ctx.textAlign = "left"
+    ctx.fillText(leftScore.toString(), 50, 50);
+    ctx.textAlign = "right"
+    ctx.fillText(rightScore.toString(), width - 50, 50);
+    
+    
+    
+
+
 }
+
 
 // Update the game
 function update() {
@@ -47,11 +60,11 @@ function adjustAngle(distanceFromTop, distanceFromBottom) {
     if (distanceFromTop < 5) {
         // If ball hit near the of the paddle, reduce ySpeed.
         ySpeed -= 0.5;
-        console.log(`ySpeed: ${ySpeed}`);
+        console.log(`adjustAngle - Speed near top: ${ySpeed}`);
     } else if (distanceFromBottom < 0) {
         // If ball hit near bottom of paddle, increase ySpeed
         ySpeed += 0.5;
-        console.log(`ySpeed: ${ySpeed}`);
+        console.log(`adjustAngle - Speed near bottom: ${ySpeed}`);
     }
 }
 
@@ -93,8 +106,13 @@ function checkCollision() {
         xSpeed = -Math.abs(xSpeed);
     }
     
-    if (ball.left < 0 || ball.right > width) {
-        xSpeed = -xSpeed;
+    if (ball.left < 0) {
+        rightScore++;
+        initBall();
+    }
+    if (ball.right > width) {
+        leftScore++;
+        initBall();
     }
 
     if (ball.top < 0 || ball.bottom > height) {
@@ -140,12 +158,18 @@ function gameControls() {
     });
 }
 
+// Ball postion at the start of each game.
+function initBall() {
+    ballPosition = {x: 20, y: 30}; 
+    xSpeed = 4;
+    ySpeed = 2;
+}
+
 // runs the game.
 function gameloop() {
     draw();
     update();
-    checkCollision()
-    ;
+    checkCollision();
 
     // Call this function after a timeout, can set the game speed.
     setTimeout(gameloop, 30)
@@ -159,11 +183,9 @@ let height = canvas.height;
 
 // Creating the ball
 const BALL_SIZE = 5;
-let ballPosition = {x: 20, y: 30};
-
-// ball settings 
-let xSpeed = 4;
-let ySpeed = 2;
+let ballPosition 
+let xSpeed;
+let ySpeed;
 
 // Paddles
 const PADDLE_WIDTH = 5;
@@ -173,17 +195,15 @@ const PADDLE_OFFSET = 10;
 let leftPaddleTop = 10;
 let rightPaddleTop = 30;
 
+// Score Variables
+let leftScore = 0;
+let rightScore = 0;
+
 // Paddle controls
 const PADDLESPEED = 10
 
 
 
-
-
-
-
-
-
-
+initBall();
 gameControls();
 gameloop();
