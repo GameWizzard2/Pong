@@ -10,7 +10,7 @@ class GameView {
     draw(...entities) {
         // Canvas is filled black.
         this.ctx.fillStyle = "black";
-        this.ctx.fillRect(0, 0, width, height);
+        this.ctx.fillRect(0, 0, this.width, this.height);
 
         entities.forEach(entity => entity.draw(this.ctx));
     }
@@ -19,247 +19,216 @@ class GameView {
         this.ctx.fillStyle = "white";
         this.ctx.font = "30px monospace";
         this.ctx.textAlign = "left"
-        this.ctx.fillText(leftScore.toString(), 50, 50);
+        this.ctx.fillText(scores.leftScore.toString(), 50, 50);
         this.ctx.textAlign = "right"
-        this.ctx.fillText(rightScore.toString(), width - 50, 50);
+        this.ctx.fillText(scores.rightScore.toString(), this.width - 50, 50);
+    }
+
+    drawGameOver() {
+        this.ctx.fillStyle = "white";
+        this.ctx.font = "30px monospace";
+        this.ctx.textAlign = "center";
+        this.ctx.fillText("GAME OVER", this.width / 2, this.height / 2);
     }
 }
 
-// Draw the game
-function draw() {
+class Entity {
+    constructor(x, y, width, height) {
+        this.x = x;    
+        this.y = y;
+        this.width = width;    
+        this.height = height;    
+    }
 
+    boundingBox() {
+        return {
+            left: this.x,
+            right: this.x + this.width,
+            top: this.y,
+            bottom: this.y + this.height
+        };
+    }
 
-    //Draw Ball
-    
-    ctx.fillRect(ballPosition.x, ballPosition.y, BALL_SIZE, BALL_SIZE)
-
-    // Draw the paddles
-    ctx.fillRect(
-        PADDLE_OFFSET,
-        leftPaddleTop,
-        PADDLE_WIDTH,
-        PADDLE_HEIGHT
-    );
-
-    ctx.fillRect(
-        width - PADDLE_WIDTH - PADDLE_OFFSET,
-        rightPaddleTop,
-        PADDLE_WIDTH,
-        PADDLE_HEIGHT
-    );
-
-    
-    
-    
-
-
-}
-
-
-// Update the game
-function update() {
-    ballPosition.x += xSpeed;
-    ballPosition.y += ySpeed;
-    followBall ();
-}
-
-function checkPaddleCollision(ball, paddle ) {
-    // check if the paddle and ball overlap vertically and horizontally.
-    return (
-        ball.left   < paddle.right &&
-        ball.right  > paddle.left &&
-        ball.top    < paddle.bottom &&
-        ball.bottom > paddle.top
-    );
-}
-
-// check what angle of the paddle the ball hit, then increase or decrese ySpeed based on that.
-function adjustAngle(distanceFromTop, distanceFromBottom) {
-    console.log(`top: ${distanceFromTop}, bottom: ${distanceFromBottom}`);
-    if (distanceFromTop < 5) {
-        // If ball hit near the of the paddle, reduce ySpeed.
-        ySpeed -= 0.5;
-        console.log(`adjustAngle - Speed near top: ${ySpeed}`);
-    } else if (distanceFromBottom < 0) {
-        // If ball hit near bottom of paddle, increase ySpeed
-        ySpeed += 0.5;
-        console.log(`adjustAngle - Speed near bottom: ${ySpeed}`);
+    draw(ctx) {
+        ctx.fillStyle = "white";
+        ctx.fillRect(this.x, this.y, this.width, this.height);
     }
 }
 
-function checkCollision() {
-    let ball = {
-        left: ballPosition.x,
-        right: ballPosition.x + BALL_SIZE,
-        top: ballPosition.y,
-        bottom: ballPosition.y + BALL_SIZE
-    }
+class Paddle extends Entity {
+    // Paddles
+    static WIDTH = 5;
+    static HEIGHT = 20;
+    static OFFSET = 10;
 
-    let leftPaddle = {
-        left: PADDLE_OFFSET,
-        right: PADDLE_OFFSET + PADDLE_WIDTH,
-        top: leftPaddleTop,
-        bottom: leftPaddleTop + PADDLE_HEIGHT
-    };
-    
-    let rightPaddle = {
-        left: width - PADDLE_WIDTH - PADDLE_OFFSET,
-        right: width - PADDLE_OFFSET,
-        top: rightPaddleTop,
-        bottom: rightPaddleTop + PADDLE_HEIGHT
-    };
-
-    if (checkPaddleCollision(ball, leftPaddle)) {
-        // Left paddle collision happened
-        let distanceFromTop = ball.top - leftPaddle.top;
-        let distanceFromBottom = leftPaddle.bottom - ball.bottom;
-        adjustAngle(distanceFromTop, distanceFromBottom);
-        xSpeed = Math.abs(xSpeed);
-    }
-
-    if (checkPaddleCollision(ball, rightPaddle)) {
-        // Right paddle collision happened
-        let distanceFromTop = ball.top - rightPaddle.top;
-        let distanceFromBottom = rightPaddle.bottom - ball.bottom;
-        adjustAngle(distanceFromTop, distanceFromBottom);
-        xSpeed = -Math.abs(xSpeed);
-    }
-    
-    if (ball.left < 0) {
-        rightScore++;
-        initBall();
-    }
-
-    if (ball.right > width) {
-        leftScore++;
-        initBall();
-    }
-
-    if (leftScore > 9 || rightScore > 9) {
-        gameOver = true;
-    }
-
-    if (ball.top < 0 || ball.bottom > height) {
-        ySpeed = -ySpeed;
+    constructor (x, y) {
+        super(x, y, Paddle.WIDTH, Paddle.HEIGHT);
     }
 }
 
-function gameControls() {
-    document.addEventListener("mousemove", e => {
-    rightPaddleTop = e.y - canvas.offsetTop;
-    if (rightPaddleTop < 0) {
-        rightPaddleTop = 0;
-        } 
+class Ball extends Entity {
 
-        else if (rightPaddleTop + PADDLE_HEIGHT > height) {
-        rightPaddleTop = height - PADDLE_HEIGHT;
+    static SIZE = 5;
+
+    constructor() {
+        super(0, 0, Ball.SIZE, Ball.SIZE);
+        this.init();
     }
-    });
-    document.addEventListener("keydown", e => {
-    // Check which key is pressed
-    switch(e.key) {
-        case "ArrowUp":
-            // Move the paddle up
-            rightPaddleTop -= PADDLESPEED;
-            // Make sure the paddle doesn't go off the top of the canvas
-            if (rightPaddleTop < 0) {
-                rightPaddleTop = 0;
-            }
-            break;
-        case "ArrowDown":
-            // Move the paddle down
-            rightPaddleTop += PADDLESPEED;
-            // Make sure the paddle doesn't go off the bottom of the canvas
-            if (height - PADDLE_HEIGHT > height) {
-                rightPaddleTop = 50;
-            } 
 
-            else if (rightPaddleTop + PADDLE_HEIGHT > height) {
-                rightPaddleTop = height - PADDLE_HEIGHT;
-            }
-            break;
+    init() {
+        this.x = 20;
+        this.y = 30;
+        this.xSpeed = 4;
+        this.ySpeed = 2;
+    }
+
+    update() {
+        this.x += this.xSpeed;
+        this.y += this.ySpeed;
+    }
+
+    adjustAngle(distanceFromTop, distanceFromBottom) {
+        if (distanceFromTop < 0) {
+            // If ball hit near top of paddle, reduce ySpeed
+            this.ySpeed -= 0.5;
+        } else if (distanceFromBottom < 0) {
+            // If ball hit near bottom of paddle, increase ySpeed
+            this.ySpeed += 0.5;
         }
-    });
-}
+    }
 
-// Computer controls left paddle.
-function followBall() {
-    let ball = {
-        top: ballPosition.y,
-        bottom: ballPosition.y + BALL_SIZE
-    };
-
-    let leftPaddle = {
-        top: leftPaddleTop,
-        bottom: leftPaddleTop + PADDLE_HEIGHT
-    };
-
-    if (ball.top < leftPaddle.top) {
-        leftPaddleTop -= MAX_COMPUTER_SPEED;
-    } else if (ball.bottom > leftPaddle.bottom) {
-        leftPaddleTop += MAX_COMPUTER_SPEED;
+    checkPaddleCollision(paddle, xSpeedAfterBounce) {
+        let ballBox = this.boundingBox();
+        let paddleBox = paddle.boundingBox();
     
+        // Check if the ball and paddle overlap vertically and horizontally
+        let collisionOccurred = (
+            ballBox.left   < paddleBox.right &&
+            ballBox.right  > paddleBox.left &&
+            ballBox.top    < paddleBox.bottom &&
+            ballBox.bottom > paddleBox.top
+        );
+    
+        if (collisionOccurred) {
+            let distanceFromTop = ballBox.top - paddleBox.top;
+            let distanceFromBottom = paddleBox.bottom - ballBox.bottom;
+            this.adjustAngle(distanceFromTop, distanceFromBottom);
+            this.xSpeed = xSpeedAfterBounce;
+        }
+    }
+        
+    checkWallCollision(width, height, scores) {
+        let ballBox = this.boundingBox();
+    
+        // Hit left wall
+        if (ballBox.left < 0) {
+            scores.rightScore++;
+            this.init();
+        }
+        // Hit right wall
+        if (ballBox.right > width) {
+            scores.leftScore++;
+            this.init();
+        }
+        // Hit top or bottom walls
+        if (ballBox.top < 0 || ballBox.bottom > height) {
+            this.ySpeed = -this.ySpeed;
+        }
     }
 }
 
-// Ball postion at the start of each game.
-function initBall() {
-    ballPosition = {x: 20, y: 30}; 
-    xSpeed = 4;
-    ySpeed = 2;
-}
-
-function drawGameOver() {
-    ctx.fillStyle = "white";
-    ctx.font = "30px monospace";
-    ctx.textAlign = "center";
-    ctx.fillText("GAME OVER", width / 2, height / 2);
-  }
-
-// runs the game.
-function gameloop() {
-    draw();
-    update();
-    checkCollision();
-
-    if (gameOver) {
-        draw();
-        drawGameOver();
-    } else {
-    // Call this function after a timeout, can set the game speed.
-    setTimeout(gameloop, 30)
+class Scores {
+    constructor() {
+        this.leftScore = 0;
+        this.rightScore = 0;
     }
 }
 
-// Creating the window
+class Computer {
+    static followBall(paddle, ball) {
+        const MAX_SPEED = 2;
+        let ballBox = ball.boundingBox();
+        let paddleBox = paddle.boundingBox();
+
+        if (ballBox.top < paddleBox.top) {
+            paddle.y -= MAX_SPEED;
+        } else if (ballBox.bottom > paddleBox.bottom) {
+            paddle.y += MAX_SPEED;
+        }
+    }
+}
+
+class Game {
+    constructor() {
+        this.gameView = new GameView();
+        this.ball = new Ball();
+        this.leftPaddle = new Paddle(Paddle.OFFSET, 10);
+        this.rightPaddle = new Paddle(
+            this.gameView.width - Paddle.OFFSET - Paddle.WIDTH,
+            30
+        );
+
+        this.scores = new Scores();
+        this.gameOver = false;
+
+        document.addEventListener("mousemove", (e) => {
+            this.rightPaddle.y = e.clientY - this.gameView.offsetTop;
+        });
+    }
+
+    draw() {
+        this.gameView.draw(
+            this.ball,
+            this.leftPaddle,
+            this.rightPaddle
+        );
+
+        this.gameView.drawScores(this.scores);
+    }
+
+    checkCollision() {
+        this.ball.checkPaddleCollision(
+            this.leftPaddle,
+            Math.abs(this.ball.xSpeed)
+        );
+        this.ball.checkPaddleCollision(
+            this.rightPaddle,
+            -Math.abs(this.ball.xSpeed)
+        );
+
+        this.ball.checkWallCollision(
+            this.gameView.width,
+            this.gameView.height,
+            this.scores
+        );
+
+        if (this.scores.leftScore > 9 || this.scores.rightScore > 9) {
+            this.gameOver = true;
+        }
+    }
+
+    update() {
+        this.ball.update();
+        Computer.followBall(this.leftPaddle, this.ball);
+    }
+
+    loop() {
+        this.draw();
+        this.update();
+        this.checkCollision();
+
+        if (this.gameOver) {
+            this.draw();
+            this.gameView.drawGameOver();
+        } else {
+            // Call this method again after a timeout
+            setTimeout(() => this.loop(), 30);
+        }
+    }
+}
 
 
-const MAX_COMPUTER_SPEED = 2;
-
-// Creating the ball
-const BALL_SIZE = 5;
-let ballPosition 
-let xSpeed;
-let ySpeed;
-
-// Paddles
-const PADDLE_WIDTH = 5;
-const PADDLE_HEIGHT = 20;
-const PADDLE_OFFSET = 10;
-
-let leftPaddleTop = 10;
-let rightPaddleTop = 30;
-
-// Score Variables
-let leftScore = 0;
-let rightScore = 0;
-let gameOver = false;
-
-// Paddle controls
-const PADDLESPEED = 10
+let game = new Game();
+game.loop();
 
 
-
-initBall();
-gameControls();
-gameloop();
